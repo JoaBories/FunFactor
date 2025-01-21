@@ -22,10 +22,11 @@ public class ThirdPersonCam : MonoBehaviour
         orientation.forward = viewDir.normalized;
 
         Vector3 inputDir = PlayerMovement.instance.ToVector3(PlayerMovement.instance.moveDir);
+        Vector3 orientedInputDir = orientation.forward * inputDir.z + orientation.right * inputDir.x;
 
         if (inputDir != Vector3.zero)
         {
-            playerObj.forward = Vector3.Slerp(playerObj.forward, inputDir.normalized, rotationSpeed * Time.deltaTime);
+            playerObj.forward = Vector3.Slerp(playerObj.forward, orientedInputDir.normalized, rotationSpeed * Time.deltaTime);
         }
     }
 }

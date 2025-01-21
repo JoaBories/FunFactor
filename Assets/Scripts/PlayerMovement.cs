@@ -120,16 +120,16 @@ public class PlayerMovement : MonoBehaviour
         #region Movements
         moveDir = _moveAction.ReadValue<Vector2>().normalized;
 
-        //Vector2 targetMovement = moveDir * movementSpeed ;
-        //Vector2 movementDiff = targetMovement - ToVector2(_rb.velocity);
-        //float accelRate = (Mathf.Abs(targetMovement.sqrMagnitude) > 0.1f) ? accel : deccel;
+        Vector2 targetMovement = ToVector2((orientation.forward * moveDir.y + orientation.right * moveDir.x) * movementSpeed);
+        Vector2 movementDiff = targetMovement - ToVector2(_rb.velocity);
+        float accelRate = (Mathf.Abs(targetMovement.sqrMagnitude) > 0.1f) ? accel : deccel;
 
-        //Vector2 movement = movementDiff * accelRate;
+        Vector2 movement = movementDiff * accelRate;
+        Debug.Log(orientation.forward * moveDir.y);
 
-        //_rb.AddForce(ToVector3(movement));
+        _rb.AddForce(ToVector3(movement), ForceMode.Force);
         #endregion
     }
-
 
     private void Jump(InputAction.CallbackContext context)
     {
