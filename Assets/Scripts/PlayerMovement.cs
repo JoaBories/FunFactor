@@ -37,6 +37,7 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Camera")]
     [SerializeField] GameObject playerCamera;
+    [SerializeField] Transform orientation;
     #endregion
 
     private float lastGroundTime;
@@ -119,12 +120,13 @@ public class PlayerMovement : MonoBehaviour
         #region Movements
         moveDir = _moveAction.ReadValue<Vector2>().normalized;
 
-        Vector2 targetMovement = moveDir * movementSpeed;
-        Vector2 movementDiff = targetMovement - ToVector2(_rb.velocity);
-        float accelRate = (Mathf.Abs(targetMovement.sqrMagnitude) > 0.1f) ? accel : deccel;
+        //Vector2 targetMovement = moveDir * movementSpeed ;
+        //Vector2 movementDiff = targetMovement - ToVector2(_rb.velocity);
+        //float accelRate = (Mathf.Abs(targetMovement.sqrMagnitude) > 0.1f) ? accel : deccel;
 
-        Vector2 movement = movementDiff * accelRate;
-        _rb.AddForce(ToVector3(movement));
+        //Vector2 movement = movementDiff * accelRate;
+
+        //_rb.AddForce(ToVector3(movement));
         #endregion
     }
 
@@ -140,12 +142,12 @@ public class PlayerMovement : MonoBehaviour
     }
 
     #region Maths
-    private Vector3 ToVector3(Vector2 vector)
+    public Vector3 ToVector3(Vector2 vector)
     {
         return new Vector3(vector.x, 0, vector.y);
     }
 
-    private Vector2 ToVector2(Vector3 vector)
+    public Vector2 ToVector2(Vector3 vector)
     {
         return new Vector2(vector.x, vector.z);
     }
