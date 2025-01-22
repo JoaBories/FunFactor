@@ -1,4 +1,4 @@
-using UnityEditor;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -20,6 +20,7 @@ public class PlayerMovement : MonoBehaviour
 
     private Rigidbody _rb;
     private Gravity _gravity;
+    private Animator _anim;
     #endregion
 
     #region SerializeField Values
@@ -61,7 +62,9 @@ public class PlayerMovement : MonoBehaviour
     private bool isJumping;
     private bool isDashing;
 
-    private bool canDash;
+    private bool grounded;
+
+    [DoNotSerialize] public bool canDash;
 
     public Vector2 moveDir;
 
@@ -77,6 +80,7 @@ public class PlayerMovement : MonoBehaviour
 
         _rb = GetComponent<Rigidbody>();
         _gravity = GetComponent<Gravity>();
+        _anim = GetComponent<Animator>();
     }
 
     #region Enable/Disable
@@ -120,7 +124,13 @@ public class PlayerMovement : MonoBehaviour
         #region Checks
         if (Physics.OverlapBox(transform.position + checkGroundOffset, checkGroundSize/2, Quaternion.identity, groundLayers).Length != 0)
         {
+            if (!grounded)
+            {
+                _anim.Play("Land");
+            }
+
             lastGroundTimer = 0;
+            grounded = true;
             if (!isDashing && lastDashTimer < -dashRecoverCooldown)
             {
                 canDash = true;
@@ -134,6 +144,14 @@ public class PlayerMovement : MonoBehaviour
                 Jump(new());
                 jumpBufferTimer = 0;
             }
+        }
+        else
+        {
+            if(grounded)
+            {
+                _anim.Play("AirStart");
+            }
+            grounded = false;
         }
         #endregion
 
