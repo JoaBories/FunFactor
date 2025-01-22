@@ -2,6 +2,12 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+// Colors :
+// Red : FF4E32
+// "White" : CCDDEE
+// "Gray" : 666F77
+
+
 public class PlayerMovement : MonoBehaviour
 {
     #region Setup Values -> Awake
@@ -31,7 +37,7 @@ public class PlayerMovement : MonoBehaviour
     [Header("Dash")]
     [SerializeField] float dashingTime;
     [SerializeField] float dashingPower;
-    [SerializeField] float dashCooldown;
+    [SerializeField] float dashRecoverCooldown;
 
     [Header("Checks")]
     [SerializeField] Vector3 checkGroundSize;
@@ -42,9 +48,9 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] float gravityScale;
     [SerializeField] float fallGravityMultiplier;
 
-    [Header("Camera")]
-    [SerializeField] GameObject playerCamera;
+    [Header("Assigns")]
     [SerializeField] Transform orientation;
+    [SerializeField] Transform playerObj;
     #endregion
 
     private float lastGroundTimer;
@@ -103,8 +109,9 @@ public class PlayerMovement : MonoBehaviour
         lastGroundTimer -= Time.fixedDeltaTime;
         lastJumpTimer -= Time.fixedDeltaTime;
         jumpBufferTimer -= Time.fixedDeltaTime;
+        lastDashTimer -= Time.fixedDeltaTime;
 
-        if (lastDashTimer <= 0)
+        if (lastDashTimer <= 0 && isDashing)
         {
             isDashing = false;
         }
@@ -114,7 +121,10 @@ public class PlayerMovement : MonoBehaviour
         if (Physics.OverlapBox(transform.position + checkGroundOffset, checkGroundSize/2, Quaternion.identity, groundLayers).Length != 0)
         {
             lastGroundTimer = 0;
-            canDash = true;
+            if (!isDashing && lastDashTimer < -dashRecoverCooldown)
+            {
+                canDash = true;
+            }
             if (lastJumpTimer < -0.1f)
             {
                 isJumping = false;
@@ -130,7 +140,6 @@ public class PlayerMovement : MonoBehaviour
         #region Physics
         if (!isDashing)
         {
-
             if (_rb.velocity.y < 0.5f)
             {
                 _gravity.gravityScale = gravityScale * fallGravityMultiplier;
@@ -155,13 +164,16 @@ public class PlayerMovement : MonoBehaviour
         #region Movements
         moveDir = _moveAction.ReadValue<Vector2>().normalized;
 
-        Vector2 targetMovement = OrientVector2(moveDir, orientation) * movementSpeed;
-        Vector2 movementDiff = targetMovement - ToVector2(_rb.velocity);
-        float accelRate = (Mathf.Abs(targetMovement.sqrMagnitude) > 0.1f) ? accel : deccel;
+        if (!isDashing)
+        {
+            Vector2 targetMovement = OrientVector2(moveDir, orientation) * movementSpeed;
+            Vector2 movementDiff = targetMovement - ToVector2(_rb.velocity);
+            float accelRate = (Mathf.Abs(targetMovement.sqrMagnitude) > 0.1f) ? accel : deccel;
 
-        Vector2 movement = movementDiff * accelRate;
+            Vector2 movement = movementDiff * accelRate;
 
-        _rb.AddForce(ToVector3(movement), ForceMode.Force);
+            _rb.AddForce(ToVector3(movement), ForceMode.Force);
+        }
         #endregion
     }
 
@@ -185,9 +197,10 @@ public class PlayerMovement : MonoBehaviour
         if (canDash && !isDashing)
         {
             canDash = false;
+            isDashing = true;
             lastDashTimer = dashingTime;
             _gravity.gravityScale = 0;
-            _rb.AddForce(orientation.forward * dashingPower, ForceMode.Impulse);
+            _rb.AddForce(playerObj.forward * dashingPower, ForceMode.Impulse);
         }
     }
 
