@@ -1604,7 +1604,7 @@ MonoBehaviour:
   m_ShowCameraFrustum: 1
   m_IgnoreTimeScale: 0
   m_WorldUpOverride: {fileID: 0}
-  m_UpdateMethod: 2
+  m_UpdateMethod: 0
   m_BlendUpdateMethod: 1
   m_DefaultBlend:
     m_Style: 1
@@ -1807,8 +1807,12 @@ MonoBehaviour:
   deccel: 5
   frictionPercentage: 0.5
   jumpForce: 18
-  coyoteTime: 0.2
-  checkGroundSize: {x: 0.9, y: 0.1, z: 0.9}
+  bufferTime: 0.1
+  coyoteTime: 0.1
+  dashingTime: 1
+  dashingPower: 30
+  dashCooldown: 0.1
+  checkGroundSize: {x: 0.9, y: 0.05, z: 0.9}
   checkGroundOffset: {x: 0, y: -1, z: 0}
   groundLayers:
     serializedVersion: 2
