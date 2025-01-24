@@ -218,6 +218,7 @@ public class PlayerMovement : MonoBehaviour
             isDashing = true;
             lastDashTimer = dashingTime;
             _gravity.gravityScale = 0;
+            _rb.velocity = Vector3.zero;
             _rb.AddForce(playerObj.forward * dashingPower, ForceMode.Impulse);
         }
     }
