@@ -1,3 +1,4 @@
+using Cinemachine;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -52,6 +53,9 @@ public class PlayerMovement : MonoBehaviour
     [Header("Assigns")]
     [SerializeField] Transform orientation;
     [SerializeField] Transform playerObj;
+    [SerializeField] CinemachineFreeLook playerCamera;
+    [SerializeField] float dashFov;
+    [SerializeField] float normalFov;
     #endregion
 
     private float lastGroundTimer;
@@ -68,6 +72,8 @@ public class PlayerMovement : MonoBehaviour
 
     public Vector2 moveDir;
 
+    private float goalFOV;
+
     private void Awake()
     {
         instance = this;
@@ -81,6 +87,9 @@ public class PlayerMovement : MonoBehaviour
         _rb = GetComponent<Rigidbody>();
         _gravity = GetComponent<Gravity>();
         _anim = GetComponent<Animator>();
+
+        playerCamera.m_Lens.FieldOfView = normalFov;
+        goalFOV = normalFov;
     }
 
     #region Enable/Disable
@@ -107,6 +116,11 @@ public class PlayerMovement : MonoBehaviour
     }
     #endregion
 
+    private void Update()
+    {
+        playerCamera.m_Lens.FieldOfView = Mathf.Lerp(playerCamera.m_Lens.FieldOfView, goalFOV, Time.deltaTime);
+    }
+
     private void FixedUpdate()
     {
         #region Timers
@@ -118,6 +132,7 @@ public class PlayerMovement : MonoBehaviour
         if (lastDashTimer <= 0 && isDashing)
         {
             isDashing = false;
+            goalFOV = normalFov;
         }
         #endregion
 
@@ -220,6 +235,7 @@ public class PlayerMovement : MonoBehaviour
             _gravity.gravityScale = 0;
             _rb.velocity = Vector3.zero;
             _rb.AddForce(playerObj.forward * dashingPower, ForceMode.Impulse);
+            goalFOV = dashFov;
         }
     }
 
@@ -237,6 +253,16 @@ public class PlayerMovement : MonoBehaviour
     public Vector2 OrientVector2(Vector2 vector, Transform orientation)
     {
         return ToVector2(orientation.forward * vector.y + orientation.right * vector.x);
+    }
+    #endregion
+
+    #region Utils
+    public void Vibrate(float lowF, float highF, float t0ime)
+    {
+        if (Gamepad.current != null)
+        {
+            Gamepad.current.SetMotorSpeeds(lowF, highF);
+        }
     }
     #endregion
 
